@@ -27,7 +27,7 @@ int main()
 				}
 			}
 		}
-		if(flag) cout << "Yes\n";
+		if(flag && (x == 0) && (y == 0)) cout << "Yes\n";
 	}
     return 0;
 }
