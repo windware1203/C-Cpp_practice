@@ -15,13 +15,13 @@ int main()
     small.push_back(1);
     for(int i = 1; i <= n;i++)
     {
-    	int64_t b = 0, s = 0;
+    	int64_t big_num = 0, small_num = 0;
     	
-    	b = big[i-1] + small[i-1];
-    	s = big[i-1];
+    	big_num = big[i-1] + small[i-1];
+    	small_num = big[i-1];
     	
-    	big.push_back(b);
-    	small.push_back(s);
+    	big.push_back(big_num);
+    	small.push_back(small_num);
     	
     	if(i >= 3) big[i] -= small[i-3];
 	}
