@@ -8,13 +8,19 @@
 
 ## InfoSec
 - .vscode
-    - VScode configure
+    - VScode Configuration
 - homework
     - some homework paper
 - p1
     - Dec to Binary
     - p1_1 Binary to Dec
 - p2
+    - .vscode
+        - Configuration
+    - p2_1
+    - iout.txt
+        - imgage binary
+        
 - p3
 - p4
 
