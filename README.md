@@ -19,7 +19,13 @@
         - Configuration
     - p2_1
     - iout.txt
-        - imgage binary
+        - imgage binary file
+    - p2img.bmp
+        - source image
+    - p2.txt
+        - source text file
+    - tout.txt
+        - text binary file
         
 - p3
 - p4
