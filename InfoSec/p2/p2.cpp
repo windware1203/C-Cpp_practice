@@ -2,6 +2,7 @@
 #include <vector>
 #include <fstream>
 #include <algorithm>
+#include <sstream>
 using namespace std;
 
 int main()
@@ -20,21 +21,18 @@ int main()
     else
         cout <<".........OK0~........\n";
 
-    char c;
-    while(txt>>c)
+    int8_t c;
+    while(txt >> c)
     {
         
         tout  <<(int)c;
         tout << ' ';
     }
-    
-
-    
-    while(img>>c)
-    {
-        iout  <<(int)c;
-        iout << ' ';
-    } 
+   
+    stringstream ss;
+    ss << img.rdbuf();
+    string str(ss.str());
+    iout << str;
 
     img.close();
     txt.close();
