@@ -33,7 +33,7 @@ int main()
     
     while(iout>>c)
     {
-        img << (int8_t)c;
+        img << c;
     }
 
     img.close();
