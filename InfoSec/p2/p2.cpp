@@ -24,7 +24,7 @@ int main()
     while(txt>>c)
     {
         
-        tout  <<hex <<(int)c;
+        tout  <<(int)c;
         tout << ' ';
     }
     
@@ -32,7 +32,7 @@ int main()
     
     while(img>>c)
     {
-        iout << hex <<(int)c;
+        iout  <<(int)c;
         iout << ' ';
     } 
 
