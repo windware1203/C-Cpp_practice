@@ -11,10 +11,10 @@ int main()
     
     ofstream img ("p2img.bmp",ios::trunc);
     ofstream txt ("p2.txt",ios::trunc|ios::binary);
-    ifstream iout("../iout.txt");
+    ifstream iout("../iout.txt",ios::binary);
     ifstream tout("../tout.txt");
 
-    cout << 's' <<(char)32 << 's';
+    
     
 
     if(!iout.is_open())
@@ -32,10 +32,16 @@ int main()
         txt << (char)c;
     }
     
-    stringstream ss;
-    ss << iout.rdbuf();
-    string str(ss.str());
-    img << str;
+
+	stringstream ss;
+    
+    while(iout>>c)
+    {
+        ss << c;
+        string str(ss.str());
+        cout << str;
+    }
+  
 
     img.close();
     txt.close();
@@ -43,6 +49,6 @@ int main()
     tout.close();
 
 
-    //char tt = getchar();
+    char tt = getchar();
     return 0;
 }

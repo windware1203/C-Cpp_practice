@@ -32,7 +32,7 @@ int main()
     stringstream ss;
     ss << img.rdbuf();
     string str(ss.str());
-    for( int i = 0; i < str.size();i++)
+    for( int i = 36; i < str.size();i++)
     {
          str[i] += 4;
     }
