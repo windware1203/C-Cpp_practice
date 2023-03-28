@@ -14,26 +14,26 @@ int main()
     if(!img.is_open())
         cout << ".........NO FOUND........" << endl;
     else
-        cout << ".........OK!........\n";
+        cout << ".........OK0!........\n";
     if(!txt.is_open())
         cout << ".........NO FOUND........" << endl;
     else
-        cout <<".........OK~........\n";
+        cout <<".........OK0~........\n";
 
     int8_t c;
     while(txt>>c)
     {
-        cout << c;
-        tout << (int)c;
-        tout << ' ';
+        
+        tout  << hex << (int8_t)c;
+        //tout << ' ';
     }
     
 
     
     while(img>>c)
     {
-        iout << (int)c;
-        iout << ' ';
+        iout << hex << (int8_t)c;
+        //iout << ' ';
     } 
 
     img.close();

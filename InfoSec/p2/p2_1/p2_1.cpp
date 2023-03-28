@@ -7,10 +7,10 @@ using namespace std;
 int main()
 {
     
-    ofstream img ("p2img.bmp",ios::trunc);
-    ofstream txt ("p2.txt",ios::trunc);
-    ifstream iout("iout.txt");
-    ifstream tout("tout.txt");
+    ofstream img ("p2img.bmp",ios::trunc|ios::binary);
+    ofstream txt ("p2.txt",ios::trunc|ios::binary);
+    ifstream iout("iout.txt",ios::binary);
+    ifstream tout("tout.txt",ios::binary);
 
     cout << 's' <<(char)32 << 's';
     
@@ -18,11 +18,11 @@ int main()
     if(!iout.is_open())
         cout << ".........NO FOUND........" << endl;
     else
-        cout << ".........OK!........\n";
+        cout << ".........OK1!........\n";
     if(!tout.is_open())
         cout << ".........NO FOUND........" << endl;
     else
-        cout <<".........OK~........\n";
+        cout <<".........OK1~........\n";
 
     int c;
     while(tout>>c)
