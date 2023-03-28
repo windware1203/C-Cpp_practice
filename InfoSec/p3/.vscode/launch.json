@@ -4,7 +4,7 @@
             "name": "(Windows) Launch",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "p2_1.exe",
+            "program": "p3.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
