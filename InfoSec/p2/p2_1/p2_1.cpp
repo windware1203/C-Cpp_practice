@@ -2,12 +2,14 @@
 #include <vector>
 #include <fstream>
 #include <algorithm>
+#include <sstream>
+
 using namespace std;
 
 int main()
 {
     
-    ofstream img ("p2img.bmp",ios::trunc|ios::binary);
+    ofstream img ("p2img.bmp",ios::trunc);
     ofstream txt ("p2.txt",ios::trunc|ios::binary);
     ifstream iout("../iout.txt");
     ifstream tout("../tout.txt");
@@ -27,14 +29,13 @@ int main()
     int c;
     while(tout>>c)
     {
-        
-        txt << dec << (char)c;
+        txt << (char)c;
     }
     
-    while(iout>>c)
-    {
-        img << (char) c;
-    }
+    stringstream ss;
+    ss << iout.rdbuf();
+    string str(ss.str());
+    img << str;
 
     img.close();
     txt.close();
