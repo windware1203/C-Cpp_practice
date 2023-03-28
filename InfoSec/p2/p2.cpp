@@ -20,20 +20,20 @@ int main()
     else
         cout <<".........OK0~........\n";
 
-    int8_t c;
+    char c;
     while(txt>>c)
     {
         
-        tout  << hex << (int8_t)c;
-        //tout << ' ';
+        tout  <<hex <<(int)c;
+        tout << ' ';
     }
     
 
     
     while(img>>c)
     {
-        iout << hex << (int8_t)c;
-        //iout << ' ';
+        iout << hex <<(int)c;
+        iout << ' ';
     } 
 
     img.close();
