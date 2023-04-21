@@ -8,22 +8,18 @@ using namespace std;
 
 int main()
 {
+    try
+    {
+    	ofstream img ("p3img.bmp",ios::trunc);
+	    ofstream txt ("p3.txt",ios::trunc|ios::binary);
+	    ifstream iout("../iout.txt",ios::binary);
+	    ifstream tout("../tout.txt");
+	}catch( Exception &error_ )
+    {
+      cout << "Caught exception: " << error_.what() << endl;
+      return 1;
+    }
     
-    ofstream img ("p3img.bmp",ios::trunc);
-    ofstream txt ("p3.txt",ios::trunc|ios::binary);
-    ifstream iout("../iout.txt",ios::binary);
-    ifstream tout("../tout.txt");
-
-    
-
-    if(!iout.is_open())
-        cout << ".........NO FOUND........" << endl;
-    else
-        cout << ".........OK1!........\n";
-    if(!tout.is_open())
-        cout << ".........NO FOUND........" << endl;
-    else
-        cout <<".........OK1~........\n";
 
     int c;
     while(tout>>c)
