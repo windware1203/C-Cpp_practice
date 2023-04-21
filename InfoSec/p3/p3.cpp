@@ -29,14 +29,13 @@ int main()
         tout << ' ';
     }
    
-    stringstream ss;
-    ss << img.rdbuf();
-    string str(ss.str());
-    for( int i = 36; i < str.size();i++)
+    char s;
+    while(img)
     {
-         str[i] += 4;
+        img.get(s);
+        s += 4;
+        iout.put(s);
     }
-    iout << str;
 
     img.close();
     txt.close();

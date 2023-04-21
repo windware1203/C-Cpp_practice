@@ -11,10 +11,9 @@ int main()
     
     ofstream img ("p3img.bmp",ios::trunc);
     ofstream txt ("p3.txt",ios::trunc|ios::binary);
-    ifstream iout("../iout.txt");
+    ifstream iout("../iout.txt",ios::binary);
     ifstream tout("../tout.txt");
 
-    cout << 's' <<(char)32 << 's';
     
 
     if(!iout.is_open())
@@ -32,10 +31,12 @@ int main()
         txt << (char)c;
     }
     
-    stringstream ss;
-    ss << iout.rdbuf();
-    string str(ss.str());
-    img << str;
+    char s;
+    while(iout)
+    {
+        iout.get(s);
+        img.put(s);
+    }
 
     img.close();
     txt.close();

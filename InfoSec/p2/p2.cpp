@@ -37,11 +37,7 @@ int main()
         img.get(s);
         iout.put(s);
     }
-    /*
-    stringstream ss;
-    ss << img.rdbuf();
-    string str(ss.str());
-    iout << str;*/
+    
 
     img.close();
     txt.close();
