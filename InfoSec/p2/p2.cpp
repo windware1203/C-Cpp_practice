@@ -3,6 +3,8 @@
 #include <fstream>
 #include <algorithm>
 #include <sstream>
+#include <bitset>
+#include <cstddef>
 using namespace std;
 
 int main()
@@ -29,10 +31,17 @@ int main()
         tout << ' ';
     }
    
+    char s;
+    while(img)
+    {
+        img.get(s);
+        iout.put(s);
+    }
+    /*
     stringstream ss;
     ss << img.rdbuf();
     string str(ss.str());
-    iout << str;
+    iout << str;*/
 
     img.close();
     txt.close();

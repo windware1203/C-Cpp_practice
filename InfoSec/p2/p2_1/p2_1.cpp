@@ -3,7 +3,8 @@
 #include <fstream>
 #include <algorithm>
 #include <sstream>
-
+#include <bitset>
+#include <cstddef>
 using namespace std;
 
 int main()
@@ -33,13 +34,12 @@ int main()
     }
     
 
-	stringstream ss;
-    
-    while(iout>>c)
+	
+    char s;
+    while(iout)
     {
-        ss << c;
-        string str(ss.str());
-        cout << str;
+        iout.get(s);
+        img.put(s);
     }
   
 
