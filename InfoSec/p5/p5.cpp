@@ -1,5 +1,4 @@
 /*
-//
 //	Name: Prime number test
 //	Copyright: Takeda Nana - wind.ware1203@gmail.com
 //	Author: Takeda Nana(Cheng-Hao,Zhang)
