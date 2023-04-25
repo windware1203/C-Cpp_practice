@@ -14,6 +14,6 @@ int main()
     cout << "input a integer num:";
     uint32_t num;
     cin >> num;
-    cout << ((arr[num-1] % num == (uint32_t)(-1)) ? "Prime" : "Not Prime") ;
+    cout << (((arr[num-1] % num) == (num - 1)) ? "Prime" : "Not Prime") ;
     return 0;
 }
