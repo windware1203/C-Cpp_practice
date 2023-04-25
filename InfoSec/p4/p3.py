@@ -23,7 +23,7 @@ tmp = 0
 for y in range(height):
     for x in range(width):
         rgba = img.getpixel((x,y))
-        rgba >>= 4
+        rgba += 4
         li[rgba%256] += 1
         img.putpixel((x,y), rgba)
         
