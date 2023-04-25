@@ -14,6 +14,7 @@ int main()
     cout << "input a integer num:";
     uint32_t num;
     cin >> num;
+    //implemented by Wilson's theorem
     cout << (((arr[num-1] % num) == (num - 1)) ? "Prime" : "Not Prime") ;
     return 0;
 }
