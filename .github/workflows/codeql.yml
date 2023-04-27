@@ -1,76 +1,23 @@
-# For most projects, this workflow file will not need changing; you simply need
-# to commit it to your repository.
-#
-# You may wish to alter this file to override the set of languages analyzed,
-# or to provide custom queries or build logic.
-#
-# ******** NOTE ********
-# We have attempted to detect the languages in your repository. Please check
-# the `language` matrix defined below to confirm you have the correct set of
-# supported CodeQL languages.
-#
-name: "CodeQL"
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ "main" ]
-  schedule:
-    - cron: '31 2 * * 4'
-
-jobs:
-  analyze:
-    name: Analyze
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'cpp', 'python']
-        # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
-        # Use only 'java' to analyze code written in Java, Kotlin or both
-        # Use only 'javascript' to analyze code written in JavaScript, TypeScript or both
-        # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
-    # Initializes the CodeQL tools for scanning.
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
-      with:
-        languages: ${{ matrix.language }}
-        # If you wish to specify custom queries, you can do so here or in a config file.
-        # By default, queries listed here will override any specified in a config file.
-        # Prefix the list here with "+" to use these queries and those in the config file.
-
-        # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
-        # queries: security-extended,security-and-quality
-
-
-    # Autobuild attempts to build any compiled languages  (C/C++, C#, Go, or Java).
-    # If this step fails, then you should remove it and run the build manually (see below)
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
-
-    # ℹ️ Command-line programs to run using the OS shell.
-    # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
-
-    #   If the Autobuild fails above, remove it and uncomment the following three lines.
-    #   modify them (or add more) to build your code if your project, please refer to the EXAMPLE below for guidance.
-
-    # - run: |
-    #     echo "Run, Build Application using script"
-    #     ./location_of_script_within_repo/buildscript.sh
-
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
-      with:
-        category: "/language:${{matrix.language}}"
+- name: Microsoft C++ Code Analysis Action
+  uses: microsoft/msvc-code-analysis-action@v0.1.1
+  with:
+    # The CMake build directory that should already be generated.
+    cmakeBuildDirectory: 
+    # The build Configuration (Release, Debug, etc.) to use. This is required if using a multi-configuration CMake generator.
+    buildConfiguration: # optional
+    # Ruleset file used to determine what checks are run.
+    ruleset: # optional, default is NativeRecommendedRules.ruleset
+    # Identical to setting "ignoredTargetPaths" and "ignoreSystemHeaders" for the given path. This is recommended over either option seperately.
+    ignoredPaths: # optional
+    # Any CMake targets defined inside these paths will be excluded from analysis. This is useful for excluding tests or locally built dependencies. List is ";" seperated, requires complete directory paths and can be absolute or relative to "github.workspace"
+    ignoredTargetPaths: # optional
+    # Any includes contained inside these path will be excluded from analysis. This will only filter existing paths add not add any additional includes to the compiler. This is useful for excluding target includes or other custom includes added to CMake. List is ";" seperated, requires complete directory paths and can be absolute or relative to "github.workspace"
+    ignoredIncludePaths: # optional
+    # Uses /external arguments to ignore warnings from any headers marked as SYSTEM in CMake.
+    ignoreSystemHeaders: # optional, default is true
+    # Optional path to generate the SARIF file to. If not supplied "results.sarif" will be created in the CMake build directory. Path can be absolute or relative to "github.workspace".
+    resultsPath: # optional
+    # Load implicit includes/libs for the given MSVC toolset using Visual Studio Command Prompt. Set to false if already loaded or a custom include path is needed.
+    loadImplicitCompilerEnv: # optional, default is true
+    # Optional parameters to pass to every instance of the compiler.
+    additionalArgs: # optional
