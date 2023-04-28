@@ -1,0 +1,20 @@
+1	PREP	#include <stdio.h>
+3	REWD	int
+3	IDEN	main
+3	SPEC	(
+3	SPEC	)
+4	SPEC	{
+5	REWD	int
+5	IDEN	a
+5	OPER	=
+5	INTE	10
+5	SPEC	;
+6	IDEN	printf
+6	SPEC	(
+6	STR	hi, i
+6	SPEC	)
+6	SPEC	;
+7	REWD	return
+7	INTE	0
+7	SPEC	;
+8	SPEC	}
