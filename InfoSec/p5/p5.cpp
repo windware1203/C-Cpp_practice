@@ -24,14 +24,15 @@ using namespace std;
 int main()
 {
 	//
-    uint32_t factorial[] = {1, 1, 2, 6, 24
-                     ,120, 720, 5040, 40320
-                     ,362880, 3628800, 39916800, 479001600};
+    vector<uint32_t> factorial= {1, 1};
 
     cout << "input a integer num:";
     uint32_t num;
     cin >> num;
-    
-    cout << (((factorial[num-1] % num) == (num - 1)) ? "Prime" : "Not Prime") ;
+    for(uint32_t i = 2; i <= num; i++)
+    {
+    	factorial.push_back((factorial[i-1]*i)%num);
+	}
+    cout << (((factorial[num]) == (num - 1)) ? "Prime" : "Not Prime") ;
     return 0;
 }
