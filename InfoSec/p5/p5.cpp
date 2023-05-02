@@ -24,15 +24,35 @@ using namespace std;
 int main()
 {
 	//
-    vector<uint32_t> factorial= {1, 1};
-
-    cout << "input a integer num:";
-    uint32_t num;
-    cin >> num;
-    for(uint32_t i = 2; i <= num; i++)
-    {
-    	factorial.push_back((factorial[i-1]*i)%num);
-	}
-    cout << (((factorial[num]) == (num - 1)) ? "Prime" : "Not Prime") ;
+    vector<uint64_t> factorial= {1, 1};
+    uint64_t num;
+    do{
+	    cout << "input a integer num(0 for end):";
+	    cin >> num;
+	    if(num == 0)
+		{
+			break;
+		}
+		if(num == 2)
+		{
+			cout<< "Prime\n";
+			continue;
+		}
+	    if(!(num % 2) || num == 1)
+		{
+			cout << "Not Prime\n";
+			continue;
+		}
+	    for(uint64_t i = 2; i <= num; i++)
+	    {
+	    	if((uint64_t)(factorial.size()-1) < i)
+	    	{
+	    		factorial.push_back((factorial[i-1]*i)%num);
+			}
+		}
+		cout << (((factorial[num-1]%num) == (num - 1)) ? "Prime\n" : "Not Prime\n") ;
+	}while(num);
+	
+    
     return 0;
 }
