@@ -1,9 +1,9 @@
 #include <stdio.h>
-
+#include <float.h>
 int main()
 {
+	printf("%f",FLT_MAX);
 	int a = 10, b = 1;
-	printf("hi, i");
-	printf("%d%d",a,b);
+	
 	return 0;
 }
