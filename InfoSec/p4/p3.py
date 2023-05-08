@@ -1,9 +1,14 @@
 from PIL import Image
+import torch
+import torchvision
+import torchvision.transforms as transforms
 import matplotlib.pyplot as plt
 
 img = Image.open("p3img.bmp")
 width, height = img.size
 
+# transform = transforms.Grayscale()
+# img = transform(img)
 xx = list()
 li = list()
 
@@ -33,4 +38,4 @@ plt.bar(xx,li)
 plt.show()
 
 img.show()
-img.save("new.png")
+img.save("new.bmp")
