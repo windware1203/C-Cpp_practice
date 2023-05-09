@@ -9,12 +9,13 @@ def toBin(num):
     return num
 
 fin = open("text.txt")
-str = ""
+strr = ""
 binn = ""
 for i in fin:
-    str+=i
-for i in range(len(str)):
-    binn += toBin(ord(str[i]))
+    strr+=i
+for i in range(len(strr)):
+    binn += toBin(ord(strr[i]))
+    
 img = Image.open("img.bmp")
 width, height = img.size
 
@@ -24,6 +25,7 @@ width, height = img.size
 #        rgba = img.getpixel((x,y))
 #        img.putpixel((x,y), rgba)
 i = 0
+
 for y in range(height):
     if(i >= len(binn)):
         break
@@ -31,14 +33,16 @@ for y in range(height):
         if(i >= len(binn)):
             break
         rgba = img.getpixel((x,y))
-        s = bytearray(toBin(rgba),'utf-8')
-        if binn[i] == 1 :
-            s[7] = 1
+
+        if (rgba % 2) == 0:
+            if binn[i] == '1':
+                rgba += 1
         else:
-            s[7] = 0
+            if binn[i] == '0':
+                rgba -= 1
+        img.putpixel((x,y), rgba)
         i += 1
-
-        img.putpixel((x,y), int(s.decode('utf-8')))
-
+        
+print(i)
 img.save("new.bmp")
 fin.close
