@@ -13,27 +13,28 @@ SIZE = 25703
 i = 0
 
 result = ""
-tmp = 0
-j = 7
+tmp = ""
+
 
 for y in range(height):
     if i > 25703:
             break
     for x in range(width):
         if i > 25703:
-            break
-        if j < 0:
-            result += chr(tmp)
+            break   
         rgba = img.getpixel((x,y))
-        if rgba % 2 == 0:
-             continue
-        else:
-            tmp += int((rgba % 2) ** j)
+        tmp += str(rgba%2)
         i += 1
-        j -= 1
 
 
-
+for q in range(0,25704,8):
+    value = 0
+    for k in range(q, q+8):
+        value += (int(tmp[k]) * (2 ** (7 - (k-q))))
+    result += chr(value)
+        
+    
+    
 
 fout.write(result)
 fout.close
