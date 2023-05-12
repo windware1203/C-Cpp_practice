@@ -14,7 +14,7 @@ img = Image.open("new.bmp")
 
 width, height = img.size
 
-SIZE = 25703 * 3
+SIZE = 25703
 i = 0
 
 result = ""
@@ -28,7 +28,7 @@ for y in range(height):
         if i > SIZE:
             break   
         rgba = img.getpixel((x,y))
-        tmp += str(toBIn(rgba%8))
+        tmp += str(toBin(rgba%8))
         i += 3
 
 
