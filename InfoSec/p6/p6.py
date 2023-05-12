@@ -34,21 +34,19 @@ for y in range(height):
             break
         rgba = img.getpixel((x,y))
          
-        threeBit = rgba % 8
-        rgba -= threeBit
+         threeBit = rgba % 8
+         rgba -= threeBit
 
-        if binn[i] == '1':
+         if binn[i] == '1':
             rgba += 4
-
-        i += 1
-        
-        if binn[i] == '1':
+         i += 1
+         
+         if binn[i] == '1':
             rgba += 2
+         i += 1
 
-        i += 1
-
-        if binn[i] == '1':
-            rgba += 1
+         if binn[i] == '1':
+             rgba += 1
         
         #if (rgba % 2) == 0:
         #    if binn[i] == '1':
