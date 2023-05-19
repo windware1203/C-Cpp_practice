@@ -20,17 +20,33 @@
 
 #define DEFAULT_OUTPUT_FILENAME "output.txt"
 
-#define TOKEN_SC   0 // single-line comment
-#define TOKEN_MC   1 // multi-line comment
-#define TOKEN_PREP 2 // preprocessor directive
-#define TOKEN_SPEC 3 // special symbol
-#define TOKEN_REWD 4 // reserved word
-#define TOKEN_CHAR 5 // char literal
-#define TOKEN_STR  6 // string literal
-#define TOKEN_FLT  7 // float
-#define TOKEN_OPER 8 // operator
-#define TOKEN_IDEN 9 // identifier
-#define TOKEN_INT 10 // interger literal
+enum {
+  TOKEN_SC,   // single-line comment
+  TOKEN_MC,   // multi-line comment
+  TOKEN_PREP, // preprocessor directive
+  TOKEN_SPEC, // special symbol
+  TOKEN_REWD, // reserved word
+  TOKEN_CHAR, // char literal
+  TOKEN_STR,  // string literal
+  TOKEN_FLT, // float
+  TOKEN_OPER, // operator
+  TOKEN_IDEN, // identifier
+  TOKEN_INT, // interger literal
+  TOKEN_LAST
+};
+
+// Lex functions prototypes
+static bool scan_sc(FileReader* fr, FILE* fout);
+static bool scan_mc(FileReader* fr, FILE* fout);
+static bool scan_prep(FileReader* fr, FILE* fout);
+static bool scan_spec(FileReader* fr, FILE* fout);
+static bool scan_rewd(FileReader* fr, FILE* fout);
+static bool scan_char(FileReader* fr, FILE* fout);
+static bool scan_str(FileReader* fr, FILE* fout);
+static bool scan_flot(FileReader* fr, FILE* fout);
+static bool scan_oper(FileReader* fr, FILE* fout);
+static bool scan_iden(FileReader* fr, FILE* fout);
+static bool scan_inte(FileReader* fr, FILE* fout);
 
 // Utility functions prototypes
 static void ungets(char* s, FILE* fin);
@@ -42,6 +58,58 @@ static bool is_underscore(char c);
 static bool is_hex_digit(char c);
 
 
+static bool scan_sc(FileReader* fr, FILE* fout)
+{
+
+}
+
+static bool scan_mc(FileReader* fr, FILE* fout)
+{
+
+}
+
+static bool scan_prep(FileReader* fr, FILE* fout)
+{
+
+}
+
+static bool scan_spec(FileReader* fr, FILE* fout)
+{
+
+}
+
+static bool scan_rewd(FileReader* fr, FILE* fout)
+{
+
+}
+static bool scan_char(FileReader* fr, FILE* fout)
+{
+
+}
+static bool scan_str(FileReader* fr, FILE* fout)
+{
+
+}
+static bool scan_flot(FileReader* fr, FILE* fout)
+{
+
+}
+
+static bool scan_oper(FileReader* fr, FILE* fout)
+{
+
+
+}
+
+static bool scan_iden(FileReader* fr, FILE* fout)
+{
+
+}
+
+static bool scan_inte(FileReader* fr, FILE* fout)
+{
+
+}
 
 
 // Utility functions
