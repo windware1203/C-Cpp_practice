@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <regex.h> 
 
 
 #define DEFAULT_OUTPUT_FILENAME "output.txt"
