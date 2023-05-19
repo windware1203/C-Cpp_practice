@@ -1,33 +1,29 @@
-1	PREP	#include <stdio.h>
-3	REWD	int
-3	IDEN	main
+1	IDEN	main
+1	SPEC	(
+1	SPEC	)
+1	SPEC	{
+2	REWD	if
+2	SPEC	(
+2	INTE	1
+2	OPER	<
+2	FLOT	2.
+2	SPEC	)
+2	IDEN	a
+2	OPER	=
+2	FLOT	1.0
+2	REWD	else
+2	IDEN	a
+2	OPER	=
+2	FLOT	1.0
+2	IDEN	e
+2	OPER	-
+2	IDEN	n
+2	SPEC	;
+3	IDEN	subr
 3	SPEC	(
-3	SPEC	)
-4	SPEC	{
-5	REWD	int
-5	IDEN	a
-5	OPER	=
-5	INTE	10
-5	OPER	,
-5	IDEN	b
-5	OPER	=
-5	INTE	1
-5	SPEC	;
-6	IDEN	printf
-6	SPEC	(
-6	STR	hi, i
-6	SPEC	)
-6	SPEC	;
-7	IDEN	printf
-7	SPEC	(
-7	STR	%d%d
-7	OPER	,
-7	IDEN	a
-7	OPER	,
-7	IDEN	b
-7	SPEC	)
-7	SPEC	;
-8	REWD	return
-8	INTE	0
-8	SPEC	;
-9	SPEC	}
+3	CHAR	aa
+3	OPER	,
+4	STR	aaaaaa	ERROR: missing "
+4	IDEN	aaaaaa
+5	STR	);	ERROR: missing "
+5	MC	ERROR: missing */

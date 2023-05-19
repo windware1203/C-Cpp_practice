@@ -75,6 +75,8 @@ static bool is_hex_digit(char c) {
 }
 
 
+
+
 int main (int argc, char* args[])
 {
     if(argc != 2 && argc != 4)
