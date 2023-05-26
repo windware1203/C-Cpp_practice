@@ -140,12 +140,10 @@ void scan_character(FileReader* fr, FILE* fout) {
     }
 
     if (c == '\'') {
-        buffer[index++] = c;
         buffer[index] = '\0';
         report_token(fr, fout, CHAR, buffer);
     } else {
-        fprintf(stderr, "Invalid character constant at line %d\n", fr->line_number);
-        exit(EXIT_FAILURE);
+        fprintf(fout, "Invalid character constant at line %d\n", fr->line_number);
     }
 }
 
@@ -153,20 +151,26 @@ void scan_string(FileReader* fr, FILE* fout) {
     char c;
     char buffer[256];
     int index = 0;
+    int line_start = fr->line_number;
 
-    while ((c = fgetc(fr->fin)) != EOF && c != '\"') {
-        buffer[index++] = c;
+    while ((c = fgetc(fr->fin)) != EOF) {
+        if (c == '\"') {
+            buffer[index] = '\0';
+            report_token(fr, fout, STR, buffer);
+            return;
+        } else if (c == '\n') {
+            fprintf(fout, "%d\tSTR\t\t%s  ERROR: missing \"\n", line_start, buffer);
+            fr->line_number++;
+            return;
+        } else {
+            buffer[index++] = c;
+        }
     }
 
-    if (c == '\"') {
-        buffer[index++] = c;
-        buffer[index] = '\0';
-        report_token(fr, fout, STR, buffer);
-    } else {
-        fprintf(stderr, "Unterminated string constant at line %d\n", fr->line_number);
-        exit(EXIT_FAILURE);
-    }
+    fprintf(fout, "%d\tSTR\t\t%s  ERROR: missing \"\n", line_start, buffer);
 }
+
+
 void scan_preprocessor(FileReader* fr, FILE* fout) {
     char c = fgetc(fr->fin);
     char buffer[256];
@@ -182,6 +186,7 @@ void scan_preprocessor(FileReader* fr, FILE* fout) {
 
     report_token(fr, fout, PREP, buffer);
 }
+
 void scan_operator(FileReader* fr, FILE* fout) {
     char c = fgetc(fr->fin);
     char buffer[3];
@@ -189,9 +194,6 @@ void scan_operator(FileReader* fr, FILE* fout) {
     buffer[1] = '\0';
 
     switch (c) {
-    	case '#':
-	        scan_preprocessor(fr, fout);
-	        break;
         case '+':
         case '-':
         case '*':
@@ -220,8 +222,7 @@ void scan_operator(FileReader* fr, FILE* fout) {
             report_token(fr, fout, SPEC, buffer);
             break;
         default:
-            fprintf(stderr, "Invalid operator at line %d\n", fr->line_number);
-            exit(EXIT_FAILURE);
+            fprintf(fout, "Invalid operator at line %d\n", fr->line_number);
     }
 }
 
@@ -231,7 +232,7 @@ void scan_single_comment(FileReader* fr, FILE* fout) {
     while ((c = fgetc(fr->fin)) != EOF && c != '\n') {
         // Ignore characters in single-line comments
     }
-	report_token(fr, fout, SC, "");
+    report_token(fr, fout, SC, "");
     fr->line_number++;
 }
 
@@ -248,9 +249,8 @@ void scan_multi_comment(FileReader* fr, FILE* fout) {
             fr->line_number++;
         }
     }
-	report_token(fr, fout, MC, "");
-    fprintf(stderr, "Unterminated multi-line comment starting at line %d\n", comment_start_line);
-    exit(EXIT_FAILURE);
+    report_token(fr, fout, MC, "");
+	fprintf(fout, "%d-%d\t%s\t\tERROR: missing */\n", comment_start_line, fr->line_number, token_type_to_string(MC));
 }
 
 void scan_tokens(FileReader* fr, FILE* fout) {
@@ -273,16 +273,16 @@ void scan_tokens(FileReader* fr, FILE* fout) {
             scan_string(fr, fout);
         } else if (c == '/') {
             if ((c = fgetc(fr->fin)) == '/') {
-                scan_single_comment(fr,fout);
+                scan_single_comment(fr, fout);
             } else if (c == '*') {
-                scan_multi_comment(fr,fout);
+                scan_multi_comment(fr, fout);
             } else {
                 fseek(fr->fin, -1, SEEK_CUR);
                 scan_operator(fr, fout);
             }
         } else if (c == '#') {
             fseek(fr->fin, -1, SEEK_CUR);
-            scan_operator(fr, fout);
+            scan_preprocessor(fr, fout);
         } else {
             fseek(fr->fin, -1, SEEK_CUR);
             scan_operator(fr, fout);
