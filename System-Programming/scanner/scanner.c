@@ -78,25 +78,108 @@ void scan_tokens(FileReader* fr, FILE* fout) {
         exit(EXIT_FAILURE);
     }
 
-    // Add other regular expressions for different token types
+    reti = regcomp(&regex, reserved_words_pattern, REG_EXTENDED);
+    if (reti) {
+        fprintf(stderr, "Could not compile regex for reserved words\n");
+        exit(EXIT_FAILURE);
+    }
+
+    reti = regcomp(&regex, integer_pattern, REG_EXTENDED);
+    if (reti) {
+        fprintf(stderr, "Could not compile regex for integers\n");
+        exit(EXIT_FAILURE);
+    }
+
+    reti = regcomp(&regex, float_pattern, REG_EXTENDED);
+    if (reti) {
+        fprintf(stderr, "Could not compile regex for floats\n");
+        exit(EXIT_FAILURE);
+    }
+
+    reti = regcomp(&regex, character_pattern, REG_EXTENDED);
+    if (reti) {
+        fprintf(stderr, "Could not compile regex for characters\n");
+        exit(EXIT_FAILURE);
+    }
+
+    reti = regcomp(&regex, string_pattern, REG_EXTENDED);
+    if (reti) {
+        fprintf(stderr, "Could not compile regex for strings\n");
+        exit(EXIT_FAILURE);
+    }
+
+    reti = regcomp(&regex, operator_pattern, REG_EXTENDED);
+    if (reti) {
+        fprintf(stderr, "Could not compile regex for operators\n");
+        exit(EXIT_FAILURE);
+    }
+
+    reti = regcomp(&regex, preprocessor_pattern, REG_EXTENDED);
+    if (reti) {
+        fprintf(stderr, "Could not compile regex for preprocessor directives\n");
+        exit(EXIT_FAILURE);
+    }
 
     while (fgets(line, sizeof(line), fr->fin)) {
         fr->line_number++;
 
         char* token = strtok(line, " \t\n");
         while (token != NULL) {
-            // Match against each regular expression
+            // Match against each regular expression and report tokens accordingly
             reti = regexec(&regex, token, 2, matches, 0);
             if (reti == 0 && matches[0].rm_so == 0) {
                 report_token(fr, fout, IDEN, token);
             } else {
-                // Check against other regular expressions and report tokens accordingly
-                // You can use similar regexec calls for other token types
-                reti = regexec(&regex_preprocessor, token, 2, matches, 0);
+                reti = regexec(&regex, token, 2, matches, 0);
                 if (reti == 0 && matches[0].rm_so == 0) {
-                    report_token(fr, fout, PREP, token);
+                    report_token(fr, fout, REWD, token);
                 } else {
-                    // Handle other token types
+                    reti = regexec(&regex, token, 2, matches, 0);
+                    if (reti == 0 && matches[0].rm_so == 0) {
+                        report_token(fr, fout, INTE, token);
+                    } else {
+                        reti = regexec(&regex, token, 2, matches, 0);
+                        if (reti == 0 && matches[0].rm_so == 0) {
+                            report_token(fr, fout, FLOT, token);
+                        } else {
+                            reti = regexec(&regex, token, 2, matches, 0);
+                            if (reti == 0 && matches[0].rm_so == 0) {
+                                report_token(fr, fout, CHAR, token);
+                            } else {
+                                reti = regexec(&regex, token, 2, matches, 0);
+                                if (reti == 0 && matches[0].rm_so == 0) {
+                                    report_token(fr, fout, STR, token);
+                                } else {
+                                    reti = regexec(&regex, token, 2, matches, 0);
+                                    if (reti == 0 && matches[0].rm_so == 0) {
+                                        report_token(fr, fout, OPER, token);
+                                    } else {
+                                        reti = regexec(&regex, token, 2, matches, 0);
+                                        if (reti == 0 && matches[0].rm_so == 0) {
+                                            report_token(fr, fout, SPEC, token);
+                                        } else {
+                                            reti = regexec(&regex, token, 2, matches, 0);
+                                            if (reti == 0 && matches[0].rm_so == 0) {
+                                                report_token(fr, fout, SC, token);
+                                            } else {
+                                                reti = regexec(&regex, token, 2, matches, 0);
+                                                if (reti == 0 && matches[0].rm_so == 0) {
+                                                    report_token(fr, fout, MC, token);
+                                                } else {
+                                                    reti = regexec(&regex, token, 2, matches, 0);
+                                                    if (reti == 0 && matches[0].rm_so == 0) {
+                                                        report_token(fr, fout, PREP, token);
+                                                    } else {
+                                                        // Handle unrecognized token
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
