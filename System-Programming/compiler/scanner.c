@@ -13,165 +13,298 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
+#include <ctype.h>
 #include <string.h>
-#include <regex.h> 
 
+typedef struct {
+    FILE* fin;
+    int line_number;
+} FileReader;
 
-#define DEFAULT_OUTPUT_FILENAME "output.txt"
+typedef enum {
+    IDEN,
+    REWD,
+    INTE,
+    FLOT,
+    CHAR,
+    STR,
+    OPER,
+    SPEC,
+    SC,
+    MC,
+    PREP
+} TokenType;
 
-enum {
-  TOKEN_SC,   // single-line comment
-  TOKEN_MC,   // multi-line comment
-  TOKEN_PREP, // preprocessor directive
-  TOKEN_SPEC, // special symbol
-  TOKEN_REWD, // reserved word
-  TOKEN_CHAR, // char literal
-  TOKEN_STR,  // string literal
-  TOKEN_FLT, // float
-  TOKEN_OPER, // operator
-  TOKEN_IDEN, // identifier
-  TOKEN_INT, // interger literal
-  TOKEN_LAST
-};
+// Function prototypes
+void report_token(FileReader* fr, FILE* fout, TokenType type, const char* token);
+void scan_identifier(FileReader* fr, FILE* fout);
+void scan_reserved(FileReader* fr, FILE* fout);
+void scan_integer(FileReader* fr, FILE* fout);
+void scan_float(FileReader* fr, FILE* fout);
+void scan_character(FileReader* fr, FILE* fout);
+void scan_string(FileReader* fr, FILE* fout);
+void scan_operator(FileReader* fr, FILE* fout);
+void scan_special(FileReader* fr, FILE* fout);
+void scan_single_comment(FileReader* fr, FILE* fout);
+void scan_multi_comment(FileReader* fr, FILE* fout);
+void scan_preprocessor(FileReader* fr, FILE* fout);
 
-// Lex functions prototypes
-static bool scan_sc(FileReader* fr, FILE* fout);
-static bool scan_mc(FileReader* fr, FILE* fout);
-static bool scan_prep(FileReader* fr, FILE* fout);
-static bool scan_spec(FileReader* fr, FILE* fout);
-static bool scan_rewd(FileReader* fr, FILE* fout);
-static bool scan_char(FileReader* fr, FILE* fout);
-static bool scan_str(FileReader* fr, FILE* fout);
-static bool scan_flot(FileReader* fr, FILE* fout);
-static bool scan_oper(FileReader* fr, FILE* fout);
-static bool scan_iden(FileReader* fr, FILE* fout);
-static bool scan_inte(FileReader* fr, FILE* fout);
-
-// Utility functions prototypes
-static void ungets(char* s, FILE* fin);
-static bool is_newline(char c);
-static bool is_whitespace(char c);
-static bool is_alphabet(char c);
-static bool is_digit(char c);
-static bool is_underscore(char c);
-static bool is_hex_digit(char c);
-
-
-static bool scan_sc(FileReader* fr, FILE* fout)
-{
-
+const char* token_type_to_string(TokenType type) {
+    switch (type) {
+        case IDEN:
+            return "IDEN";
+        case REWD:
+            return "REWD";
+        case INTE:
+            return "INTE";
+        case FLOT:
+            return "FLOT";
+        case CHAR:
+            return "CHAR";
+        case STR:
+            return "STR";
+        case OPER:
+            return "OPER";
+        case SPEC:
+            return "SPEC";
+        case SC:
+            return "SC";
+        case MC:
+            return "MC";
+        case PREP:
+            return "PREP";
+        default:
+            return "UNKNOWN";
+    }
 }
 
-static bool scan_mc(FileReader* fr, FILE* fout)
-{
-
+void report_token(FileReader* fr, FILE* fout, TokenType type, const char* token) {
+    fprintf(fout, "%d\t%s\t%s\n", fr->line_number, token_type_to_string(type), token);
 }
 
-static bool scan_prep(FileReader* fr, FILE* fout)
-{
+void scan_identifier(FileReader* fr, FILE* fout) {
+    char c = fgetc(fr->fin);
+    char buffer[256];
+    int index = 0;
+    buffer[index++] = c;
 
-}
-
-static bool scan_spec(FileReader* fr, FILE* fout)
-{
-
-}
-
-static bool scan_rewd(FileReader* fr, FILE* fout)
-{
-
-}
-static bool scan_char(FileReader* fr, FILE* fout)
-{
-
-}
-static bool scan_str(FileReader* fr, FILE* fout)
-{
-
-}
-static bool scan_flot(FileReader* fr, FILE* fout)
-{
-
-}
-
-static bool scan_oper(FileReader* fr, FILE* fout)
-{
-
-
-}
-
-static bool scan_iden(FileReader* fr, FILE* fout)
-{
-
-}
-
-static bool scan_inte(FileReader* fr, FILE* fout)
-{
-
-}
-
-
-// Utility functions
-static void ungets(char* s, FILE* fin) {
-  for (int i = strlen(s) - 1; i >= 0; i--) {
-    ungetc(s[i], fin);
-  }
-}
-
-static bool is_newline(char c) {
-  return c == 0xd || c == 0xa; //LF or CR
-}
-
-static bool is_whitespace(char c) {
-  return c == ' ' || c == '\t' || is_newline(c);
-}
-
-static bool is_alphabet(char c) {
-  return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
-}
-
-static bool is_digit(char c) {
-  return c >= '0' && c <= '9';
-}
-
-static bool is_underscore(char c) {
-  return c == '_';
-}
-
-static bool is_hex_digit(char c) {
-  return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
-}
-
-
-
-
-int main (int argc, char* args[])
-{
-    if(argc != 2 && argc != 4)
-    {
-        printf("usage: %s <input file> <output file>\n", args[0]);
-        return EXIT_SUCCESS;
+    while ((c = fgetc(fr->fin)) != EOF && (isalpha(c) || isdigit(c) || c == '_')) {
+        buffer[index++] = c;
     }
 
+    buffer[index] = '\0';
 
-    FILE* fin = fopen(args[1], "r");
-    if(!fin)
-    {
-        perror("missing input file");
-        return EXIT_FAILURE;
+    fseek(fr->fin, -1, SEEK_CUR);
+    report_token(fr, fout, IDEN, buffer);
+}
+
+void scan_integer(FileReader* fr, FILE* fout) {
+    char c = fgetc(fr->fin);
+    char buffer[256];
+    int index = 0;
+    buffer[index++] = c;
+
+    while ((c = fgetc(fr->fin)) != EOF && isdigit(c)) {
+        buffer[index++] = c;
     }
 
-    const char* output_filename = (argc == 3 ? args[2] : DEFAULT_OUTPUT_FILENAME);
-    FILE* fout = fopen(output_filename, "w");
-    if(!fout)
-    {
-        perror("Fatal error");
-        return EXIT_FAILURE;
+    buffer[index] = '\0';
+
+    fseek(fr->fin, -1, SEEK_CUR);
+    report_token(fr, fout, INTE, buffer);
+}
+
+void scan_float(FileReader* fr, FILE* fout) {
+    char c = fgetc(fr->fin);
+    char buffer[256];
+    int index = 0;
+    buffer[index++] = c;
+
+    while ((c = fgetc(fr->fin)) != EOF && (isdigit(c) || c == '.' || c == 'E' || c == 'e' || c == '+' || c == '-')) {
+        buffer[index++] = c;
     }
 
+    buffer[index] = '\0';
 
-    fclose(fin);
+    fseek(fr->fin, -1, SEEK_CUR);
+    report_token(fr, fout, FLOT, buffer);
+}
+
+void scan_character(FileReader* fr, FILE* fout) {
+    char c;
+    char buffer[256];
+    int index = 0;
+
+    while ((c = fgetc(fr->fin)) != EOF && c != '\'') {
+        buffer[index++] = c;
+    }
+
+    if (c == '\'') {
+        buffer[index++] = c;
+        buffer[index] = '\0';
+        report_token(fr, fout, CHAR, buffer);
+    } else {
+        fprintf(stderr, "Invalid character constant at line %d\n", fr->line_number);
+        exit(EXIT_FAILURE);
+    }
+}
+
+void scan_string(FileReader* fr, FILE* fout) {
+    char c;
+    char buffer[256];
+    int index = 0;
+
+    while ((c = fgetc(fr->fin)) != EOF && c != '\"') {
+        buffer[index++] = c;
+    }
+
+    if (c == '\"') {
+        buffer[index++] = c;
+        buffer[index] = '\0';
+        report_token(fr, fout, STR, buffer);
+    } else {
+        fprintf(stderr, "Unterminated string constant at line %d\n", fr->line_number);
+        exit(EXIT_FAILURE);
+    }
+}
+void scan_preprocessor(FileReader* fr, FILE* fout) {
+    char c = fgetc(fr->fin);
+    char buffer[256];
+    int index = 0;
+    buffer[index++] = c;
+
+    // Read until the end of the line
+    while (c != '\n' && c != EOF) {
+        c = fgetc(fr->fin);
+        buffer[index++] = c;
+    }
+    buffer[index - 1] = '\0';
+
+    report_token(fr, fout, PREP, buffer);
+}
+void scan_operator(FileReader* fr, FILE* fout) {
+    char c = fgetc(fr->fin);
+    char buffer[3];
+    buffer[0] = c;
+    buffer[1] = '\0';
+
+    switch (c) {
+    	case '#':
+	        scan_preprocessor(fr, fout);
+	        break;
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+        case '=':
+        case ',':
+        case '%':
+        case '>':
+        case '<':
+        case '!':
+        case '&':
+        case '|':
+        case '^':
+        case '.':
+            report_token(fr, fout, OPER, buffer);
+            break;
+        case '[':
+        case ']':
+        case '(':
+        case ')':
+        case '{':
+        case '}':
+        case ';':
+        case '?':
+        case ':':
+            report_token(fr, fout, SPEC, buffer);
+            break;
+        default:
+            fprintf(stderr, "Invalid operator at line %d\n", fr->line_number);
+            exit(EXIT_FAILURE);
+    }
+}
+
+void scan_single_comment(FileReader* fr, FILE* fout) {
+    char c;
+
+    while ((c = fgetc(fr->fin)) != EOF && c != '\n') {
+        // Ignore characters in single-line comments
+    }
+	report_token(fr, fout, SC, "");
+    fr->line_number++;
+}
+
+void scan_multi_comment(FileReader* fr, FILE* fout) {
+    char c;
+    int comment_start_line = fr->line_number;
+
+    while ((c = fgetc(fr->fin)) != EOF) {
+        if (c == '*') {
+            if ((c = fgetc(fr->fin)) == '/') {
+                return;
+            }
+        } else if (c == '\n') {
+            fr->line_number++;
+        }
+    }
+	report_token(fr, fout, MC, "");
+    fprintf(stderr, "Unterminated multi-line comment starting at line %d\n", comment_start_line);
+    exit(EXIT_FAILURE);
+}
+
+void scan_tokens(FileReader* fr, FILE* fout) {
+    char c;
+
+    while ((c = fgetc(fr->fin)) != EOF) {
+        if (c == '\n') {
+            fr->line_number++;
+        } else if (isspace(c)) {
+            // Ignore whitespace characters
+        } else if (isalpha(c) || c == '_') {
+            fseek(fr->fin, -1, SEEK_CUR);
+            scan_identifier(fr, fout);
+        } else if (isdigit(c)) {
+            fseek(fr->fin, -1, SEEK_CUR);
+            scan_integer(fr, fout);
+        } else if (c == '\'') {
+            scan_character(fr, fout);
+        } else if (c == '\"') {
+            scan_string(fr, fout);
+        } else if (c == '/') {
+            if ((c = fgetc(fr->fin)) == '/') {
+                scan_single_comment(fr,fout);
+            } else if (c == '*') {
+                scan_multi_comment(fr,fout);
+            } else {
+                fseek(fr->fin, -1, SEEK_CUR);
+                scan_operator(fr, fout);
+            }
+        } else if (c == '#') {
+            fseek(fr->fin, -1, SEEK_CUR);
+            scan_operator(fr, fout);
+        } else {
+            fseek(fr->fin, -1, SEEK_CUR);
+            scan_operator(fr, fout);
+        }
+    }
+}
+
+int main() {
+    FileReader fr;
+    fr.fin = fopen("input.c", "r");
+    fr.line_number = 1;
+    FILE* fout = fopen("tokens.txt", "w");
+
+    if (fr.fin == NULL || fout == NULL) {
+        fprintf(stderr, "Error opening files.\n");
+        return 1;
+    }
+
+    scan_tokens(&fr, fout);
+
+    fclose(fr.fin);
     fclose(fout);
-    return EXIT_SUCCESS;
+
+    return 0;
 }
