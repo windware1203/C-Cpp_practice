@@ -68,7 +68,7 @@ void scan_tokens(FileReader* fr, FILE* fout) {
     const char* float_pattern = "^[-+]?([0-9]+\\.[0-9]*|[0-9]*\\.[0-9]+)([eE][-+]?[0-9]+)?";
     const char* character_pattern = "^'[^']*'";
     const char* string_pattern = "^\"[^\"]*\"";
-    const char* operator_pattern = "^([+\\-*/=,%><!&|^]|\\[|\\]|\\(|\\)|\\{|\\}|;|\\?|:|\\.|->|==|>=|<=|!=)";
+    const char* operator_pattern = "^([+\\-*/=,%%><!&|^\\[\\](){};?:\\.->==>=<=!=])";
     const char* preprocessor_pattern = "^#\\s*(\\w+).*";
 
     // Compile regular expressions
