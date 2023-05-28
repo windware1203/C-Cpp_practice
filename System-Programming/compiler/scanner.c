@@ -4,6 +4,21 @@
 #include <ctype.h>
 #include <string.h>
 
+
+#define DEFAULT_INPUT_FILENAME "input.c"
+#define DEFAULT_OUTPUT_FILENAME "output.txt"
+
+#define REWD_MAX_LEN 10
+
+
+
+const char rewds[][REWD_MAX_LEN] = {//25
+    "if", "do", "for", "int", "break", "default", "float",
+	"double", "case", "else", "extern", "sizeof", "register",
+	"while", "enum", "union", "goto", "auto", "char", "const",
+	"static", "switch", "continue", "struct", "return"
+};
+
 typedef struct 
 {
     FILE *fin;
@@ -26,9 +41,10 @@ typedef enum
 } TokenType;
 
 // Function prototypes
+const char *token_type_to_string(TokenType type); 
 void report_token(FileReader *fr, FILE *fout, TokenType type, const char *token);
 void scan_identifier(FileReader *fr, FILE *fout);
-void scan_reserved(FileReader *fr, FILE *fout);
+bool scan_reserved(FileReader *fr, FILE *fout, char *buffer);
 void scan_integer(FileReader *fr, FILE *fout);
 void scan_float(FileReader *fr, FILE *fout);
 void scan_character(FileReader *fr, FILE *fout);
@@ -38,6 +54,10 @@ void scan_special(FileReader *fr, FILE *fout);
 void scan_single_comment(FileReader *fr, FILE *fout);
 void scan_multi_comment(FileReader *fr, FILE *fout);
 void scan_preprocessor(FileReader *fr, FILE *fout);
+
+int compare(const void *arg1, const void *arg2) {
+  return  (*(int *)arg1 - *(int *)arg2);
+}
 
 const char*
 token_type_to_string(TokenType type) 
@@ -77,6 +97,22 @@ report_token(FileReader *fr, FILE *fout, TokenType type, const char *token)
     fprintf(fout, "%d\t%s\t%s\n", fr->line_number, token_type_to_string(type), token);
 }
 
+bool
+scan_reserved(FileReader *fr, FILE *fout,char *buffer)
+{
+    char *ch = bsearch (buffer, rewds, 25,REWD_MAX_LEN , compare);
+    if(ch != NULL)
+    {
+    	report_token(fr, fout, REWD, buffer);
+    	return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+
 void
 scan_identifier(FileReader *fr, FILE *fout) 
 {
@@ -94,7 +130,10 @@ scan_identifier(FileReader *fr, FILE *fout)
     buffer[index] = '\0';
 
     fseek(fr->fin, -1, SEEK_CUR);
-    report_token(fr, fout, IDEN, buffer);
+    if(!scan_reserved(fr, fout, buffer))
+    {
+    	report_token(fr, fout, IDEN, buffer);
+	}
 }
 
 void
@@ -103,10 +142,63 @@ scan_integer(FileReader *fr, FILE *fout)
     char c = fgetc(fr->fin);
     char buffer[256];
     int index = 0;
+
+    // Check if the first character is a valid sign (+ or -)
+    if (c == '+' || c == '-')
+    {
+        buffer[index++] = c;
+        c = fgetc(fr->fin);
+    }
+
+    // Read digits until a non-digit character is encountered
+    while (isdigit(c)) 
+    {
+        buffer[index++] = c;
+        c = fgetc(fr->fin);
+    }
+
+    // If the last character read is not a digit, move the file pointer back
+    if (!isdigit(buffer[index - 1]))
+    {
+        fseek(fr->fin, -1, SEEK_CUR);
+        index--;
+    }
+
+    buffer[index] = '\0';
+
+    // Report the token as an integer constant
+    report_token(fr, fout, INTE, buffer);
+}
+
+void
+scan_hexadecimal(FileReader *fr, FILE *fout)
+{
+    char c = fgetc(fr->fin);
+    char buffer[256];
+    int index = 0;
     buffer[index++] = c;
 
-    while ((c = fgetc(fr->fin)) != EOF && isdigit(c)) 
-	{
+    while ((c = fgetc(fr->fin)) != EOF && isxdigit(c))
+    {
+        buffer[index++] = c;
+    }
+
+    buffer[index] = '\0';
+
+    fseek(fr->fin, -1, SEEK_CUR);
+    report_token(fr, fout, INTE, buffer);
+}
+
+void
+scan_octal(FileReader *fr, FILE *fout)
+{
+    char c = fgetc(fr->fin);
+    char buffer[256];
+    int index = 0;
+    buffer[index++] = c;
+
+    while ((c = fgetc(fr->fin)) != EOF && c >= '0' && c <= '7')
+    {
         buffer[index++] = c;
     }
 
@@ -122,20 +214,69 @@ scan_float(FileReader *fr, FILE *fout)
     char c = fgetc(fr->fin);
     char buffer[256];
     int index = 0;
-    buffer[index++] = c;
 
-    while ((c = fgetc(fr->fin)) != EOF
-			&& (isdigit(c)  || c == '.' || c == 'E'
-				|| c == 'e' || c == '+' || c == '-')) 
-	{
+    // Check if the first character is a valid sign (+ or -)
+    if (c == '+' || c == '-')
+    {
         buffer[index++] = c;
+        c = fgetc(fr->fin);
+    }
+
+    // Read digits before the decimal point
+    while (isdigit(c))
+    {
+        buffer[index++] = c;
+        c = fgetc(fr->fin);
+    }
+
+    // Check if there is a decimal point and read digits after it
+    if (c == '.')
+    {
+        buffer[index++] = c;
+        c = fgetc(fr->fin);
+
+        // Read digits after the decimal point
+        while (isdigit(c))
+        {
+            buffer[index++] = c;
+            c = fgetc(fr->fin);
+        }
+    }
+
+    // Check if there is an exponent part
+    if (c == 'E' || c == 'e')
+    {
+        buffer[index++] = c;
+        c = fgetc(fr->fin);
+
+        // Check if there is a valid sign (+ or -)
+        if (c == '+' || c == '-')
+        {
+            buffer[index++] = c;
+            c = fgetc(fr->fin);
+        }
+
+        // Read digits in the exponent
+        while (isdigit(c))
+        {
+            buffer[index++] = c;
+            c = fgetc(fr->fin);
+        }
+    }
+
+    // If the last character read is not a digit, move the file pointer back
+    if (!isdigit(buffer[index - 1]))
+    {
+        fseek(fr->fin, -1, SEEK_CUR);
+        index--;
     }
 
     buffer[index] = '\0';
 
-    fseek(fr->fin, -1, SEEK_CUR);
+    // Report the token as a float constant
     report_token(fr, fout, FLOT, buffer);
 }
+
 
 void
 scan_character(FileReader *fr, FILE *fout) 
@@ -178,7 +319,7 @@ scan_string(FileReader *fr, FILE *fout)
         }
 		else if (c == '\n') 
 		{
-            fprintf(fout, "%d\tSTR\t\t%s  ERROR: missing \"\n", line_start, buffer);
+            fprintf(fout, "%d \t STR\t%s \tERROR: missing \"\n", line_start, buffer);
             fr->line_number++;
             return;
         }
@@ -215,6 +356,8 @@ void
 scan_operator(FileReader *fr, FILE *fout) 
 {
     char c = fgetc(fr->fin);
+    char ch;
+    bool flag = true;
     char buffer[3];
     buffer[0] = c;
     buffer[1] = '\0';
@@ -222,8 +365,8 @@ scan_operator(FileReader *fr, FILE *fout)
     switch (c) 
 	{
         case '+':// +, ++, +=
-			char ch = fgetc(fr->fin);
-			bool flag = ture;
+			ch = fgetc(fr->fin);
+			flag = true;
 			
 			switch(ch)
 			{
@@ -306,7 +449,6 @@ scan_multi_comment(FileReader *fr, FILE *fout)
             fr->line_number++;
         }
     }
-    report_token(fr, fout, MC, "");
 	fprintf(fout, "%d-%d\t%s\t\tERROR: missing */\n", comment_start_line, fr->line_number, token_type_to_string(MC));
 }
 
@@ -315,57 +457,91 @@ scan_tokens(FileReader *fr, FILE *fout)
 {
     char c;
 
-    while ((c = fgetc(fr->fin)) != EOF) 
-	{
-        if (c == '\n') 
-		{
+    while ((c = fgetc(fr->fin)) != EOF)
+    {
+        if (c == '\n')
+        {
             fr->line_number++;
         }
-		else if (isspace(c)) 
-		{
+        else if (isspace(c))
+        {
             // Ignore whitespace characters
         }
-		else if (isalpha(c) || c == '_') 
-		{
+        else if (isalpha(c) || c == '_')
+        {
             fseek(fr->fin, -1, SEEK_CUR);
             scan_identifier(fr, fout);
         }
-		else if (isdigit(c)) 
-		{
+        else if (isdigit(c))
+        {
             fseek(fr->fin, -1, SEEK_CUR);
-            scan_integer(fr, fout);
+            if (c == '0')
+            {
+                // Check for hexadecimal or octal constant
+                char nextChar = fgetc(fr->fin);
+                if (nextChar == 'x' || nextChar == 'X')
+                {
+                    // Hexadecimal constant
+                    fseek(fr->fin, -1, SEEK_CUR);
+                    scan_hexadecimal(fr, fout);
+                }
+                else
+                {
+                    // Octal constant
+                    fseek(fr->fin, -1, SEEK_CUR);
+                    scan_octal(fr, fout);
+                }
+            }
+            else
+            {
+                scan_integer(fr, fout);
+            }
         }
-		else if (c == '\'')
-		{
+        else if (c == '\'')
+        {
             scan_character(fr, fout);
         }
-		else if (c == '\"')
-		{
+        else if (c == '\"')
+        {
             scan_string(fr, fout);
         }
-		else if (c == '/')
-		{
-            if ((c = fgetc(fr->fin)) == '/') 
-			{
+        else if (c == '/')
+        {
+            if ((c = fgetc(fr->fin)) == '/')
+            {
                 scan_single_comment(fr, fout);
             }
-			else if (c == '*') 
-			{
+            else if (c == '*')
+            {
                 scan_multi_comment(fr, fout);
             }
-			else
-			{
+            else
+            {
                 fseek(fr->fin, -1, SEEK_CUR);
                 scan_operator(fr, fout);
             }
-        } 
-		else if (c == '#') 
-		{
+        }
+        else if (c == '#')
+        {
             fseek(fr->fin, -1, SEEK_CUR);
             scan_preprocessor(fr, fout);
         }
-		else 
-		{
+        else if (c == '+' || c == '-' || c == '.')
+        {
+            char nextChar = fgetc(fr->fin);
+            if (isdigit(nextChar))
+            {
+                fseek(fr->fin, -1, SEEK_CUR);
+                scan_float(fr, fout);
+            }
+            else
+            {
+                fseek(fr->fin, -2, SEEK_CUR);
+                scan_operator(fr, fout);
+            }
+        }
+        else
+        {
             fseek(fr->fin, -1, SEEK_CUR);
             scan_operator(fr, fout);
         }
@@ -376,9 +552,9 @@ int
 main() 
 {
     FileReader fr;
-    fr.fin = fopen("input.c", "r");
+    fr.fin = fopen(DEFAULT_INPUT_FILENAME, "r");
     fr.line_number = 1;
-    FILE *fout = fopen("tokens.txt", "w");
+    FILE *fout = fopen(DEFAULT_OUTPUT_FILENAME, "w");
 
     if (fr.fin == NULL || fout == NULL) 
 	{
@@ -390,6 +566,7 @@ main()
 
     fclose(fr.fin);
     fclose(fout);
-
+    
+	printf("The output is sucessful in %s",DEFAULT_OUTPUT_FILENAME);
     return 0;
 }
