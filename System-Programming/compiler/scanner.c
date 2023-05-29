@@ -55,7 +55,8 @@ void scan_single_comment(FileReader *fr, FILE *fout);
 void scan_multi_comment(FileReader *fr, FILE *fout);
 void scan_preprocessor(FileReader *fr, FILE *fout);
 
-int compare(const void *arg1, const void *arg2) {
+int
+compare(const void *arg1, const void *arg2) {
   return  (*(int *)arg1 - *(int *)arg2);
 }
 
@@ -357,7 +358,6 @@ scan_operator(FileReader *fr, FILE *fout)
 {
     char c = fgetc(fr->fin);
     char ch;
-    bool flag = true;
     char buffer[3];
     buffer[0] = c;
     buffer[1] = '\0';
@@ -365,37 +365,160 @@ scan_operator(FileReader *fr, FILE *fout)
     switch (c) 
 	{
         case '+':// +, ++, +=
-			ch = fgetc(fr->fin);
-			flag = true;
-			
+			ch = fgetc(fr->fin);	
 			switch(ch)
 			{
 				case '+':
 					buffer[1] = '+';
 					buffer[2] = '\0';
-					flag = false;
 					break;
 				case '=':
 					buffer[1] = '=';
 					buffer[2] = '\0';
-					flag = false;
 					break;
 				default:
-					ungetc(ch,fr->fin);
+					fseek(fr->fin, -1, SEEK_CUR);
 					break;
 			}
 			
         case '-':// -, --, -=, ->
+        	ch = fgetc(fr->fin);	
+			switch(ch)
+			{
+				case '-':
+					buffer[1] = '-';
+					buffer[2] = '\0';
+					break;
+				case '=':
+					buffer[1] = '=';
+					buffer[2] = '\0';
+					break;
+				case '>':
+					buffer[1] = '>';
+					buffer[2] = '\0';
+					break;
+				default:
+					fseek(fr->fin, -1, SEEK_CUR);
+					break;
+			}
         case '*':// *, *=
+        	ch = fgetc(fr->fin);	
+			switch(ch)
+			{
+				case '*':
+					buffer[1] = '*';
+					buffer[2] = '\0';
+					break;
+				default:
+					fseek(fr->fin, -1, SEEK_CUR);
+					break;
+			}
         case '/':// /, /=
+        	ch = fgetc(fr->fin);	
+			switch(ch)
+			{
+				case '=':
+					buffer[1] = '=';
+					buffer[2] = '\0';
+					break;
+				default:
+					fseek(fr->fin, -1, SEEK_CUR);
+					break;
+			}
 		case '%':// %, %=
+			ch = fgetc(fr->fin);	
+			switch(ch)
+			{
+				case '=':
+					buffer[1] = '=';
+					buffer[2] = '\0';
+					break;
+				default:
+					fseek(fr->fin, -1, SEEK_CUR);
+					break;
+			}
         case '=':// =, ==
+        	ch = fgetc(fr->fin);	
+			switch(ch)
+			{
+				case '=':
+					buffer[1] = '=';
+					buffer[2] = '\0';
+					break;
+				default:
+					fseek(fr->fin, -1, SEEK_CUR);
+					break;
+			}
         case ',':
         case '>':// >, >>, >=
+        	ch = fgetc(fr->fin);	
+			switch(ch)
+			{
+				case '>':
+					buffer[1] = '>';
+					buffer[2] = '\0';
+					break;
+				case '=':
+					buffer[1] = '=';
+					buffer[2] = '\0';
+					break;
+				default:
+					fseek(fr->fin, -1, SEEK_CUR);
+					break;
+			}
         case '<':// <, <<, <=
+        	ch = fgetc(fr->fin);	
+			switch(ch)
+			{
+				case '<':
+					buffer[1] = '<';
+					buffer[2] = '\0';
+					break;
+				case '=':
+					buffer[1] = '=';
+					buffer[2] = '\0';
+					break;
+				default:
+					fseek(fr->fin, -1, SEEK_CUR);
+					break;
+			}
         case '!':// !, !=
+        	ch = fgetc(fr->fin);	
+			switch(ch)
+			{
+				case '=':
+					buffer[1] = '=';
+					buffer[2] = '\0';
+					break;
+				default:
+					fseek(fr->fin, -1, SEEK_CUR);
+					break;
+			}
         case '&':// &, &&
+        	ch = fgetc(fr->fin);	
+			switch(ch)
+			{
+				case '&':
+					buffer[1] = '&';
+					buffer[2] = '\0';
+					break;
+				default:
+					fseek(fr->fin, -1, SEEK_CUR);
+					break;
+			}
         case '|':// |, ||
+        	ch = fgetc(fr->fin);	
+			switch(ch)
+			{
+				case '|':
+					buffer[1] = '|';
+					buffer[2] = '\0';
+					break;
+					break;
+				default:
+					fseek(fr->fin, -1, SEEK_CUR);
+					break;
+			}
         case '^':
 		case '[':
         case ']':
