@@ -2,32 +2,28 @@
 1	SPEC	(
 1	SPEC	)
 1	SPEC	{
+2	IDEN	a
+2	OPER	=
+2	INTE	10
 2	REWD	if
 2	SPEC	(
 2	INTE	1
-2	INTE	2
+2	FLOT	2
 2	SPEC	)
 2	IDEN	a
 2	OPER	=
-2	INTE	1
-2	INTE	0
-2	REWD	else
+2	FLOT	1.0
+2	IDEN	lse
 2	IDEN	a
 2	OPER	=
-2	INTE	1
-2	INTE	0
-2	IDEN	e
-2	OPER	-
+2	FLOT	1.0e
 2	IDEN	n
 2	SPEC	;
-3	IDEN	a
-3	OPER	++
-3	SPEC	;
 4	IDEN	subr
 4	SPEC	(
 4	CHAR	aa
 4	OPER	,
 4 	 STR	aaaaaa 	ERROR: missing "
-5	IDEN	aaaaaa
-5 	 STR	); 	ERROR: missing "
-6-8	MC		ERROR: missing */
+6	IDEN	aaaaaa
+6 	 STR	); 	ERROR: missing "
+8-10	MC		ERROR: missing */

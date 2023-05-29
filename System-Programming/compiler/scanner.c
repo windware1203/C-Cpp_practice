@@ -150,12 +150,19 @@ scan_integer(FileReader *fr, FILE *fout)
         buffer[index++] = c;
         c = fgetc(fr->fin);
     }
-
+    
+    int cnt = 1;
     // Read digits until a non-digit character is encountered
     while (isdigit(c)) 
     {
         buffer[index++] = c;
         c = fgetc(fr->fin);
+        cnt++;
+        if(c == '.')
+        {
+        	fseek(fr->fin, 0 - cnt, SEEK_CUR);
+        	return scan_float(fr, fout);
+		}
     }
 
     // If the last character read is not a digit, move the file pointer back
