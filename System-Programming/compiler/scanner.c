@@ -164,6 +164,7 @@ scan_integer(FileReader *fr, FILE *fout)
         c = fgetc(fr->fin);
     }
     
+    
     int cnt = 1;
     // Read digits until a non-digit character is encountered
     while (isdigit(c)) 
@@ -177,6 +178,7 @@ scan_integer(FileReader *fr, FILE *fout)
         	return scan_float(fr, fout);
 		}
     }
+    fseek(fr->fin,-1, SEEK_CUR);
 
     // If the last character read is not a digit, move the file pointer back
     if (!isdigit(buffer[index - 1]))
@@ -263,27 +265,53 @@ scan_float(FileReader *fr, FILE *fout)
             c = fgetc(fr->fin);
         }
     }
+    else
+    {
+    	fseek(fr->fin, -index, SEEK_CUR);
+    	return;
+	}
 
     // Check if there is an exponent part
-    if (c == 'E' || c == 'e')
+    switch (c)
     {
-        buffer[index++] = c;
-        c = fgetc(fr->fin);
-
-        // Check if there is a valid sign (+ or -)
-        if (c == '+' || c == '-')
-        {
-            buffer[index++] = c;
-            c = fgetc(fr->fin);
-        }
-
-        // Read digits in the exponent
-        while (isdigit(c))
-        {
-            buffer[index++] = c;
-            c = fgetc(fr->fin);
-        }
-    }
+		case 'e':
+		case 'E':
+	        buffer[index++] = c;
+	        c = fgetc(fr->fin);
+	
+	        // Check if there is a valid sign (+ or -)
+	        switch (c)
+	        {
+	        	case '+':
+	        	case '-':
+		            buffer[index++] = c;
+		            c = fgetc(fr->fin);
+		            if (isdigit(c))
+					{
+						buffer[index++] = c;
+			            c = fgetc(fr->fin);
+					}
+					else
+					{
+						fseek(fr->fin, -2, SEEK_CUR);
+					}
+					break;
+				default:
+					fseek(fr->fin, -1, SEEK_CUR);
+					break;
+	        }
+	        // Read digits in the exponent
+	        while (isdigit(c))
+	        {
+	            buffer[index++] = c;
+	            c = fgetc(fr->fin);
+	        }
+	        break;
+	    default:
+	    	
+	    	break;
+	    	
+	}
 
     // If the last character read is not a digit, move the file pointer back
     if (!isdigit(buffer[index - 1]))
@@ -577,13 +605,17 @@ scan_multi_comment(FileReader *fr, FILE *fout)
 {
     char c;
     int comment_start_line = fr->line_number;
-
+    int comment_end_line = comment_start_line;
     while ((c = fgetc(fr->fin)) != EOF) 
 	{
         if (c == '*') 
 		{
             if ((c = fgetc(fr->fin)) == '/') 
 			{
+				fprintf(fout, "%d-%d\t%s\n",
+						comment_start_line,
+						comment_end_line,
+						token_type_to_string(MC));
                 return;
             }
         }
@@ -591,8 +623,9 @@ scan_multi_comment(FileReader *fr, FILE *fout)
 		{
             fr->line_number++;
         }
+        comment_end_line = fr->line_number;
     }
-	fprintf(fout, "%d-%d\t%s\t\tERROR: missing */\n", comment_start_line, fr->line_number, token_type_to_string(MC));
+	fprintf(fout, "%d-%d\t%s\t\tERROR: missing */\n", comment_start_line, comment_end_line, token_type_to_string(MC));
 }
 
 void
