@@ -308,17 +308,17 @@ scan_float(FileReader *fr, FILE *fout)
 	        }
 	        break;
 	    default:
-	    	
+	    	fseek(fr->fin, -1, SEEK_CUR);
 	    	break;
 	    	
 	}
 
     // If the last character read is not a digit, move the file pointer back
-    if (!isdigit(buffer[index - 1]))
+    /*if (!isdigit(buffer[index - 1]))
     {
         fseek(fr->fin, -1, SEEK_CUR);
         index--;
-    }
+    }*/
 
     buffer[index] = '\0';
 
@@ -397,7 +397,7 @@ scan_preprocessor(FileReader *fr, FILE *fout)
         buffer[index++] = c;
     }
     buffer[index - 1] = '\0';
-
+    fr->line_number++;
     report_token(fr, fout, PREP, buffer);
 }
 
@@ -697,6 +697,11 @@ scan_tokens(FileReader *fr, FILE *fout)
                 scan_operator(fr, fout);
             }
         }
+        else if (c == '.')
+        {
+        	fseek(fr->fin, -1, SEEK_CUR);
+        	scan_float(fr, fout);
+		}
         else if (c == '#')
         {
             fseek(fr->fin, -1, SEEK_CUR);
