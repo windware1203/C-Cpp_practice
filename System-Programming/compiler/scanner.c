@@ -8,8 +8,8 @@
  * 
  * @copyright Copyright (c) 2023
  * reference: 王冠中U10516045.c
- * 
  */
+int aaa = 3;
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,7 +18,7 @@
 #include <string.h>
 
 
-#define DEFAULT_INPUT_FILENAME "input.c"
+#define DEFAULT_INPUT_FILENAME "scanner.c"
 #define DEFAULT_OUTPUT_FILENAME "output.txt"
 
 #define REWD_MAX_LEN 10
@@ -605,7 +605,6 @@ scan_multi_comment(FileReader *fr, FILE *fout)
 {
     char c;
     int comment_start_line = fr->line_number;
-    int comment_end_line = comment_start_line;
     while ((c = fgetc(fr->fin)) != EOF) 
 	{
         if (c == '*') 
@@ -614,18 +613,22 @@ scan_multi_comment(FileReader *fr, FILE *fout)
 			{
 				fprintf(fout, "%d-%d\t%s\n",
 						comment_start_line,
-						comment_end_line,
+						fr->line_number,
 						token_type_to_string(MC));
                 return;
             }
+            else
+            {
+            	fseek(fr->fin, -1, SEEK_CUR);
+			}
         }
 		else if (c == '\n') 
 		{
             fr->line_number++;
         }
-        comment_end_line = fr->line_number;
+        
     }
-	fprintf(fout, "%d-%d\t%s\t\tERROR: missing */\n", comment_start_line, comment_end_line, token_type_to_string(MC));
+	fprintf(fout, "%d-%d\t%s\t\tERROR: missing */\n", comment_start_line, fr->line_number, token_type_to_string(MC));
 }
 
 void
@@ -635,13 +638,12 @@ scan_tokens(FileReader *fr, FILE *fout)
 
     while ((c = fgetc(fr->fin)) != EOF)
     {
-        if (c == '\n')
+        if (isspace(c))
         {
-            fr->line_number++;
-        }
-        else if (isspace(c))
-        {
-            // Ignore whitespace characters
+            if(c == '\n')
+	        {
+	        	fr->line_number++;
+			}
         }
         else if (isalpha(c) || c == '_')
         {
@@ -683,7 +685,8 @@ scan_tokens(FileReader *fr, FILE *fout)
         }
         else if (c == '/')
         {
-            if ((c = fgetc(fr->fin)) == '/')
+        	c = fgetc(fr->fin);
+            if (c == '/')
             {
                 scan_single_comment(fr, fout);
             }
@@ -726,6 +729,16 @@ scan_tokens(FileReader *fr, FILE *fout)
             fseek(fr->fin, -1, SEEK_CUR);
             scan_operator(fr, fout);
         }
+        
+        c = fgetc(fr->fin);
+        if(c == '\n')
+        {
+        	fr->line_number++;
+		}
+		else
+		{
+			fseek(fr->fin, -1, SEEK_CUR);
+		}
     }
 }
 
