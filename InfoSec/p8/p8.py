@@ -25,11 +25,11 @@ n = p * q
 print("n: " + str(n))
 phi = (p-1)*(q-1)
 
-e = 0
-for i in range( 2, phi ):
-	if GCD( i, phi ) == 1:
-		e = i
-		break
+e = 13
+#for i in range( 2, phi ):
+#	if GCD( i, phi ) == 1:
+#		e = i
+#		break
 
 print("phi: " + str(phi))
 d = compute_d(e,phi)
