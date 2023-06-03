@@ -1,11 +1,38 @@
+GCD = lambda a, b: (a if b == 0 else GCD(b, a % b))
+
+# or
+
+def GCD(a, b):
+    if b == 0:
+        return a
+    return GCD(b, a % b)
+    
+def extended_gcd(a, b):
+    if b == 0:
+        return a, 1, 0
+    gcd, x, y = extended_gcd(b, a % b)
+    return gcd, y, x - (a // b) * y
+
+def compute_d(e, n):
+    _, d, _ = extended_gcd(e, n)
+    if d < 0:
+        d += n
+    return d
+
 p = int(input("enter a prime number p:"))
 q = int(input("enter a prime number q:"))
-e = 13
 n = p * q
 print("n: " + str(n))
 phi = (p-1)*(q-1)
+
+e = 0
+for i in range( 2, phi ):
+	if GCD( i, phi ) == 1:
+		e = i
+		break
+
 print("phi: " + str(phi))
-d = e - (1 % phi)
+d = compute_d(e,phi)
 print("e:" + str(e))
 print("d:" + str(d))
 cmd = int(input("enter the command(1: encode, 2: decode):"))
@@ -22,3 +49,6 @@ match cmd:
         cipher = int(input("enter the cipher:"))
         plain = (cipher ** d) % n
         print("plain:" + str(plain))
+        
+        
+print()
