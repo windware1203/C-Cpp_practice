@@ -9,7 +9,7 @@
  * @copyright Copyright (c) 2023
  * reference: 王冠中U10516045.c
  */
-int aaa = 3;
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,6 +38,8 @@ typedef struct
     int line_number;
 } FileReader;
 
+typedef void (*TokenScan)(FileReader *fr, FILE *fout);
+
 typedef enum 
 {
     IDEN,
@@ -54,6 +56,7 @@ typedef enum
 } TokenType;
 
 // Function prototypes
+void *ScanScan(FileReader *fr, FILE *fout, TokenType Opt);
 const char *token_type_to_string(TokenType type); 
 void report_token(FileReader *fr, FILE *fout, TokenType type, const char *token);
 void scan_identifier(FileReader *fr, FILE *fout);
@@ -68,10 +71,17 @@ void scan_single_comment(FileReader *fr, FILE *fout);
 void scan_multi_comment(FileReader *fr, FILE *fout);
 void scan_preprocessor(FileReader *fr, FILE *fout);
 
+
 int
 compare(const void *arg1, const void *arg2) {
   return  (*(int *)arg1 - *(int *)arg2);
 }
+
+//A funtion pointer for the Token Scanning 
+void ScanToken(FileReader *fr, FILE *fout, TokenScan Opt)
+{
+     return Opt(fr, fout);
+} 
 
 const char*
 token_type_to_string(TokenType type) 
@@ -108,7 +118,7 @@ token_type_to_string(TokenType type)
 void
 report_token(FileReader *fr, FILE *fout, TokenType type, const char *token) 
 {
-    fprintf(fout, "%d\t%s\t%s\n", fr->line_number, token_type_to_string(type), token);
+    fprintf(fout, "%d\t%-7s\t%s\n", fr->line_number, token_type_to_string(type), token);
 }
 
 bool
@@ -313,18 +323,13 @@ scan_float(FileReader *fr, FILE *fout)
 	    	
 	}
 
-    // If the last character read is not a digit, move the file pointer back
-    /*if (!isdigit(buffer[index - 1]))
-    {
-        fseek(fr->fin, -1, SEEK_CUR);
-        index--;
-    }*/
-
     buffer[index] = '\0';
 
     // Report the token as a float constant
     report_token(fr, fout, FLOT, buffer);
 }
+
+
 
 
 void
@@ -337,8 +342,16 @@ scan_character(FileReader *fr, FILE *fout)
     while ((c = fgetc(fr->fin)) != EOF && c != '\'') 
 	{
         buffer[index++] = c;
+        
+		//process escape character
+        if(c == '\\')
+	    {
+	    	c = fgetc(fr->fin);
+	    	buffer[index++] = '\\';
+	    	buffer[index++] = c;
+		}
     }
-
+    
     if (c == '\'') 
 	{
         buffer[index] = '\0';
@@ -360,6 +373,15 @@ scan_string(FileReader *fr, FILE *fout)
 
     while ((c = fgetc(fr->fin)) != EOF) 
 	{
+		//process escape character
+		if(c == '\\')
+		{
+			buffer[index++] = '\\';
+			c = fgetc(fr->fin);
+			buffer[index++] = c;
+			c = fgetc(fr->fin);
+		}
+		
         if (c == '\"') 
 		{
             buffer[index] = '\0';
@@ -648,7 +670,7 @@ scan_tokens(FileReader *fr, FILE *fout)
         else if (isalpha(c) || c == '_')
         {
             fseek(fr->fin, -1, SEEK_CUR);
-            scan_identifier(fr, fout);
+            ScanToken(fr, fout, scan_identifier);
         }
         else if (isdigit(c))
         {
@@ -661,54 +683,55 @@ scan_tokens(FileReader *fr, FILE *fout)
                 {
                     // Hexadecimal constant
                     fseek(fr->fin, -1, SEEK_CUR);
-                    scan_hexadecimal(fr, fout);
+                    ScanToken(fr, fout, scan_hexadecimal);
                 }
                 else
                 {
                     // Octal constant
                     fseek(fr->fin, -1, SEEK_CUR);
-                    scan_octal(fr, fout);
+                    ScanToken(fr, fout, scan_octal);
+
                 }
             }
             else
             {
-                scan_integer(fr, fout);
+                ScanToken(fr, fout, scan_integer);
             }
         }
         else if (c == '\'')
         {
-            scan_character(fr, fout);
+            ScanToken(fr, fout, scan_character);
         }
         else if (c == '\"')
         {
-            scan_string(fr, fout);
+            ScanToken(fr, fout, scan_string);
         }
         else if (c == '/')
         {
         	c = fgetc(fr->fin);
             if (c == '/')
             {
-                scan_single_comment(fr, fout);
+                ScanToken(fr, fout, scan_single_comment);
             }
             else if (c == '*')
             {
-                scan_multi_comment(fr, fout);
+                ScanToken(fr, fout, scan_multi_comment);
             }
             else
             {
                 fseek(fr->fin, -1, SEEK_CUR);
-                scan_operator(fr, fout);
+               ScanToken(fr, fout, scan_operator);
             }
         }
         else if (c == '.')
         {
         	fseek(fr->fin, -1, SEEK_CUR);
-        	scan_float(fr, fout);
+        	ScanToken(fr, fout, scan_float);
 		}
         else if (c == '#')
         {
             fseek(fr->fin, -1, SEEK_CUR);
-            scan_preprocessor(fr, fout);
+            ScanToken(fr, fout, scan_preprocessor);
         }
         else if (c == '+' || c == '-' || c == '.')
         {
@@ -716,18 +739,18 @@ scan_tokens(FileReader *fr, FILE *fout)
             if (isdigit(nextChar))
             {
                 fseek(fr->fin, -1, SEEK_CUR);
-                scan_float(fr, fout);
+                ScanToken(fr, fout, scan_float);
             }
             else
             {
                 fseek(fr->fin, -2, SEEK_CUR);
-                scan_operator(fr, fout);
+                ScanToken(fr, fout, scan_operator);
             }
         }
         else
         {
             fseek(fr->fin, -1, SEEK_CUR);
-            scan_operator(fr, fout);
+            ScanToken(fr, fout, scan_operator);
         }
         
         c = fgetc(fr->fin);
@@ -745,22 +768,26 @@ scan_tokens(FileReader *fr, FILE *fout)
 int
 main() 
 {
-    FileReader fr;
-    fr.fin = fopen(DEFAULT_INPUT_FILENAME, "r");
-    fr.line_number = 1;
+	//init
+    FileReader* fr = (FileReader*) malloc(sizeof(FileReader));
+    fr->fin = fopen(DEFAULT_INPUT_FILENAME, "r");
+    fr->line_number = 1;
+    
+    //file opening
     FILE *fout = fopen(DEFAULT_OUTPUT_FILENAME, "w");
 
-    if (fr.fin == NULL || fout == NULL) 
+    if (fr->fin == NULL || fout == NULL) 
 	{
         fprintf(stderr, "Error opening files.\n");
-        return 1;
+        return EXIT_FAILURE;
     }
+    
+    ScanToken(fr, fout, scan_tokens);
 
-    scan_tokens(&fr, fout);
-
-    fclose(fr.fin);
+    fclose(fr->fin);
     fclose(fout);
+    free(fr);
     
 	printf("The output is sucessful in %s",DEFAULT_OUTPUT_FILENAME);
-    return 0;
+    return EXIT_SUCCESS;
 }
