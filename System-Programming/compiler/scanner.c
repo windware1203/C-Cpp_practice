@@ -2,7 +2,7 @@
  * @file scanner.c
  * 
  * @author takedaNana (wind.ware1203@gmail.com)
- * @brief scanning the source code, and split it to the tokens. Get the longest string for a token.
+ * @brief scanning the source code, and split it to the tokens. Get the longest string for a token.(processed the escape character)
  * @version 0.1
  * @date 2023-04-28
  * 
