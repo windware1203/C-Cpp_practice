@@ -10,20 +10,15 @@
  * reference: 王冠中U10516045.c
  */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <ctype.h>
 #include <string.h>
 
-
 #define DEFAULT_INPUT_FILENAME "scanner.c"
 #define DEFAULT_OUTPUT_FILENAME "output.txt"
-
 #define REWD_MAX_LEN 10
-
-
 
 const char rewds[][REWD_MAX_LEN] = {//25
     "if", "do", "for", "int", "break", "default", "float",
@@ -70,7 +65,6 @@ void scan_special(FileReader *fr, FILE *fout);
 void scan_single_comment(FileReader *fr, FILE *fout);
 void scan_multi_comment(FileReader *fr, FILE *fout);
 void scan_preprocessor(FileReader *fr, FILE *fout);
-
 
 int
 compare(const void *arg1, const void *arg2) {
@@ -135,7 +129,6 @@ scan_reserved(FileReader *fr, FILE *fout,char *buffer)
 		return false;
 	}
 }
-
 
 void
 scan_identifier(FileReader *fr, FILE *fout) 
@@ -329,9 +322,6 @@ scan_float(FileReader *fr, FILE *fout)
     report_token(fr, fout, FLOT, buffer);
 }
 
-
-
-
 void
 scan_character(FileReader *fr, FILE *fout) 
 {
@@ -402,7 +392,6 @@ scan_string(FileReader *fr, FILE *fout)
 
     fprintf(fout, "%d\tSTR\t\t%s  ERROR: missing \"\n", line_start, buffer);
 }
-
 
 void
 scan_preprocessor(FileReader *fr, FILE *fout) 
